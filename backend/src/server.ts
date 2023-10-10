@@ -6,7 +6,7 @@ const port = env.PORT // port is basically a connection point on the server, som
 
 if (!port) { // checking if port is false (i.e. if port is undefined), then we do something
 // one way to handle accidently passing undefined variables is to wrap our code in if condition that checks if port is false (which is equal to checking if port is undefined) and here we would throw an error to crash our server right away, but this is a bit verbose and kinda terrible code to read, a better way to handle this is to use a package/dependency/module called envalid, which helps us define how our environment variable should look, and enforce this schema so if one is missing it actually throws an error and our server won't start 
-}
+} //
 
 mongoose.connect(env.MONGO_DB_CONNECTION) // because connect() returns a Promise, which is basically an asynchronous operation (an operation that takes time), and we can call then() on Promises to define what we want to do after they are succeeded, later we'll use async/await which is syntactic sugar over Promises and then(), but we can't use async/await here on the top level of the file. 
     .then(() => {
