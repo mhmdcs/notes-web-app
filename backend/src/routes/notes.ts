@@ -11,6 +11,6 @@ router.get("/", NoteControllers.getNotes);
 // our second endpoint, it'll use the same endpoint as our first endpoint, but no worries! they won't interfere with each other because both are different http verbs (one is get and the other one is post)
 router.post("/", NoteControllers.createNote);
 
-router.get("/:noteId", NoteControllers.getNote); // :noteId basically means that it represents a value (usually a string)
+router.get("/:noteId", NoteControllers.getNote); // :noteId basically means that it represents a value (usually a string), :noteId is a URL param, whereas a URL query is a question mark ? in the URL
 
 export default router;
