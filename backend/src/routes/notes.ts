@@ -13,4 +13,8 @@ router.post("/", NoteControllers.createNote);
 
 router.get("/:noteId", NoteControllers.getNote); // :noteId basically means that it represents a value (usually a string), :noteId is a URL param, whereas a URL query is a question mark ? in the URL
 
+router.patch("/:noteId", NoteControllers.updateNote);
+
+router.delete("/:noteId", NoteControllers.deleteNote);
+
 export default router;

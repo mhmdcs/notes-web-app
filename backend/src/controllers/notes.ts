@@ -19,7 +19,7 @@ export const getNotes: RequestHandler = async (request, response, next) => { // 
 }
 
 export const getNote: RequestHandler = async (request, response, next) => {
-    const noteId = request.params.noteId // we take the noteId we expect to be passed in the get params
+    const noteId = request.params.noteId; // we take the noteId we expect to be passed in the get params
     try {
 
         if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
@@ -28,7 +28,7 @@ export const getNote: RequestHandler = async (request, response, next) => {
 
         const note = await NoteModel.findById(noteId).exec(); // we await on the async result
 
-        if (!note) {
+        if (!note) { // check if we fail to find the note in the db
             throw createHttpError(404, "Note not found");
         }
 
@@ -51,7 +51,7 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
     const title = request.body.title; // before passing our CreateNoteBody type, title was of type `any`, after passing CreateNoteBody, `title` became of type `string`, and when in the CreateNoteBody interface we made title optional, title's type became either "string" or "undefined", undefined is a possible type for title because we can't guarantee that whoever sends these reqeusts actually sent a title
     const text = request.body.text;
     // because title and text are of type `any`, because typescript doesn't know their types, it means that their type could be anything, from strings to numbers, so we have to make an inteface to make them typed to tell typescript what types we should expect
-    
+
     console.log("someone called createNote!")
     // when a client tries to create a note without a title, which is mandatory, mongoose throws its own default error message, and it doesn't have an http status code associated with it, so it falls back with our middleware's error-handler's 500 default code
     // for this reason instead of relying on mongoose to check the title and throw an error for us, we need to check it ourselves, this gives us more control over the status code and error message, and the default error message from mongoose will remain a fallback in case we miss up our handling somehow
@@ -72,3 +72,73 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
         next(error);
     }
 } // now there's a problem when we want to test this, with the brower we can only send get requests to the server, so we'll have to use tools like postman or curl to send more intricate HTTP requests like post requests to test them against our server
+
+// earlier, we didn't define a type for when we fetched the noteId from the endpoint's URL params in getNote, because we didn't specify any generic types to RequestHandler
+// but now, since we're updating a note and we'll pass a type to the third parameter (reqBody), we're forced to either declare the rest of the generic types either unknown (it's a type that's like any, but the difference is that we can't perform aribtrary operations on it)
+// and because of those unknown generic types, if we tried to use `request.params.noteId` it wouldn't work because `params` is of type `unknown`, and thus, we'll have to create a type for the NoteId and pass it to the first generic parameter
+
+interface UpdateNoteParams {
+    noteId: string
+}
+
+interface UpdateNoteBody {
+    title?: string,
+    text?: string,
+}
+
+export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBody, unknown> = async (request, response, next) => {
+
+    const noteId = request.params.noteId;
+    const updatedTitle = request.body.title;
+    const updatedText = request.body.text;
+
+    try {
+
+        if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
+            throw createHttpError(400, "invalid noteId");
+        }
+
+        if (!updatedTitle) { // this checks if title is false i.e. if title is undefined 
+            throw createHttpError(400, "Note must have a title"); // if title is undefined, then we throw an HttpError with 400 (bad request), which will then get caught in the catch block below, and then next() will forward it to our error-handler middleware
+        }
+
+        const note = await NoteModel.findById(noteId).exec();
+
+        if (!note) { // check if we fail to find the note in the db
+            throw createHttpError(404, "Note not found");
+        }
+
+        note.title = updatedTitle;
+        note.text = updatedText;
+
+        const updatedNote = await note.save();
+
+        response.status(200).json(updatedNote);
+    } catch (error) {
+        next(error); // call the error handler in case there's an error 
+    }
+};
+
+export const deleteNote: RequestHandler = async (request, response, next) => {
+
+    const noteId = request.params.noteId;
+
+    try {
+        if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
+            throw createHttpError(400, "invalid noteId");
+        }
+
+        const note = await NoteModel.findById(noteId).exec();
+
+        if (!note) { // check if we fail to find the note in the db
+            throw createHttpError(404, "Note not found");
+        }
+
+        await note.remove();
+
+        response.sendStatus(204); // we send 204 success code which is the code for a successful deletion, notice that we called sendStatus() instead of status() like in the above controllers, this is because in the above controllers, json() is the method that actually sends the response
+
+    } catch (error) {
+        next(error);
+    }
+}
