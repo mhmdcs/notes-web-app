@@ -5,13 +5,13 @@ import express from "express";
 
 const router = express.Router(); // this is basically a way to set endpoints on a router, and then later set this router to our express' app to connect it all
 
-// this is our first endpoint, the second param is an arrow function (callback)
+// this is our first endpoint, first param is endpoint name, second param is an arrow function (callback), we're passing the reference of an async arrow function
 router.get("/", NoteControllers.getNotes);
 
 // our second endpoint, it'll use the same endpoint as our first endpoint, but no worries! they won't interfere with each other because both are different http verbs (one is get and the other one is post)
 router.post("/", NoteControllers.createNote);
 
-router.get("/:noteId", NoteControllers.getNote); // :noteId basically means that it represents a value (usually a string), :noteId is a URL param, whereas a URL query is a question mark ? in the URL
+router.get("/:noteId", NoteControllers.getNote); // :noteId basically means that it represents a value (a string), :noteId is a URL param, whereas a URL query is a question mark ? in the URL
 
 router.patch("/:noteId", NoteControllers.updateNote);
 
