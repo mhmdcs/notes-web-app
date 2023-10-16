@@ -3,6 +3,11 @@
     /* margin: 4px; */
 }
 
+.cardBody {
+    overflow: hidden; /* we set overflow attribute to hidden so that if the note's text is too large, it doesn't go over the note's body */
+    mask-image: linear-gradient(180deg, #000, 60%, transparent); /* to indicate that the note's body might contain extra text that we aren't showing, we pass to gradient 180 degrees, black color, 60% opacity  */
+}
+
 .cardText {
 white-space: pre-line; /* we use this attribute so that if our note's text in the database contains new lines between them, the new lines are rendered */
 }

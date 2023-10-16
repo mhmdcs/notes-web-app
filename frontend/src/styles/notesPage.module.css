@@ -1,0 +1,12 @@
+/* we will use this css module on the entire page that displays our notes, so this css module isn't specific to a single note, but to the whole page that displays them */
+
+.note { /* create a note class in css */
+    height: 200px; /* set all notes to a fixed height of 200 pixels */
+    min-width: 150px; /* we set mininum width so when the screen gets very small, they don't keep shrinking indefinitely*/
+    transition: box-shadow .2s ease-in-out; /* we add a 200 milliseconds animtation to the box-shadow effect created with the hover class below using the transition attribute, so that when we hover and render shadows it doesn't look too abrupt */
+    cursor: pointer; /* we use the cursor attribute and pass it pointer so that when we move the mouse to the note, a click mouse icon appears so that the user knows he can click the note to edit it, etc */
+}
+
+.note:hover { /* this is how you define styling of a class in css when you hover over it with a mouse */
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; /* this adds a nice subtle shadow when we hover over notes :) */
+}

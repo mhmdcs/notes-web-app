@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import { Note as NoteModel } from './models/notes';
 import Note from './components/Notes';
+import { Col, Row, Container } from 'react-bootstrap';
+import styles from "./styles/notesPage.module.css";
 
 // this is a function component, function components are "units of a user interface" which are JavaScript/TypeScript functions that return JSX/TSX or null. They can receive props as their argument, and they can manage an internal state.
 // Hooks like useState() and useEffect() are functions that let developers "hook into" React state and lifecycle features from function components
@@ -36,12 +38,21 @@ function App() {
   // useState() returns an array with two values, and so we destructure the array by using the `const [clickCount, setClickCount]` syntax, the first variable is the state itself, and the second variable is used to update the state 
 
   return (
-    <div className="App">
+    // instead of HTML's <div> tag we use <Container> tag from react bootstrap
+    // we use the <Row> tag to basically create grids layout for the notes
+    // also, in the <Row> tag, we add some configurations for how many items we want to display on each row based on the screen size, xs means small screen sizes, md means medium, xl means large
+    // we also pass a "g-4" for the class in the <Row> tag which adds margin between our grid elements
+    // we also pass a css class to our <Note> tag, so we go inside our Note component function and add another property to it
+    <Container>
+      <Row xs={1} md={2} xl={3} className='g-4'>
       {notes.map(noteItem => ( // we call map function on our array of notes, map function takes in an arrow function, and the argument that the arrow function receives is the noteItem and now we can maniuplate each note we fetched from the backend
-        <Note note = { noteItem } key = { noteItem._id }  /> // the Note tag takes two arguments, the first argument is the NoteProps we passed to the component function which, and the second argument this `key` property is added automatically by react, react uses this key to diff and compare different notes in the array when it redraws the component, so we pass in our note's unique id
+        <Col  key = { noteItem._id }>
+        <Note note = { noteItem } className={styles.note} /> 
+        </Col>
       ))}
-    </div>
-  );
+      </Row>
+    </Container>
+  ); // // the <Note> tag (which is our Note component function) takes two arguments, the first argument is the NoteProps we passed to the component function which, and the second argument this `key` property is added automatically by react, react uses this key to diff and compare different notes in the array when it redraws the component, so we pass in our note's unique id
 }
 
 export default App;
