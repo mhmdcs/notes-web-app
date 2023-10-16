@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { Button } from 'react-bootstrap';
-import { Note } from './models/notes';
+import { Note as NoteModel } from './models/notes';
+import Note from './components/Notes';
 
+// this is a function component, function components are "units of a user interface" which are JavaScript/TypeScript functions that return JSX/TSX or null. They can receive props as their argument, and they can manage an internal state.
+// Hooks like useState() and useEffect() are functions that let developers "hook into" React state and lifecycle features from function components
 function App() {
-  const [notes, setNotes] = useState<Note[]>([]); // we initialize the state using the useState() react hook function, we pass in an empty array as the initial state, because when the website is first opened, there are no notes yet, we have to retrieve them from the backend first
+  const [notes, setNotes] = useState<NoteModel[]>([]); // we initialize the state using the useState() react hook function, we pass in an empty array as the initial state, because when the website is first opened, there are no notes yet, we have to retrieve them from the backend first
   // now the question is, where do we load these notes from the backend? we can't just pull them directly inside this App function body
   // because react basically redraws this whole component whenever something in it changes, and it does this by executing the App function again
-  // this is what side effects are: so now when we do something inside the App function body, something that doesn't relate to the rendering itself, but something that happens in our normal app flow (like loading the notes), and then we do it here directly inside the App function body, then react will execute it on every render; every time the App function is called, this is called a side-effect, which is of course not what we want, because this is way too often and frequent  
+  // this is what side effects are: so now when we do something inside the App function body, something that doesn't relate to the rendering itself, but something that happens in our normal app flow (like loading the notes async from the backend), and then we do that here directly inside the App function body, then react will execute it on *every* render; every time the App function is called, this is called a side-effect, which is of course not what we want, because calling the api that much is way too often and frequent  
   // instead, we want to load our notes one single time, when the app starts for the first time, so we'll use the useEffect() react hook function, which is a function that takes another function as an argument, and we'll put that logic inside the passed-in arrow function callback
   // with useEffect() we can execute side effects outside of the rendering of the component itself, inside the arrow function passed to useEffect(), we have control over when it executes, and how often
 
+  // useEffect is a react hook that allows you to perform side effects inside function components
   useEffect(() => {
     async function loadNotes() {
       // we use await on the fetch() function call because this is an asynchronous operation; we have to load data from the backend and it could take a while
-      // first param is the endpoint entire url, second param is a javascript object literal (json) because this is how we configure this api call
+      // first param is the endpoint entire url, second param is a javascript object literal (json) because this is how we configure this api call to be a GET http verb
       try {
         const response = await fetch("/api/notes", { method: "GET" });
         const notes = await response.json(); // we use await here as well because parsing the json out of the response is also an async operation
@@ -26,8 +29,8 @@ function App() {
       }
     }
 
-    loadNotes();
-  }, []); // we also need to pass a dependency array to useEffect() as a second argument, inside the square bracket we can pass variables that whenver they're changed, they're gonna execute this useEffect() function again, if we pass an empty array, then useEffect() will only execute one time only at the beginning, which is exactly what we want, however, if we didn't pass an empty array at all i.e. we didn't pass anything to useEffect() second arg, then useEffect() will execute on every single render! and this is never what we want, that'd be like if we didn't use useEffect() at all and we put that loading notes code inside the App function body directly 
+    loadNotes(); // we immediately call/invoke loadNotes()
+  }, []); // we also need to pass a dependency array to useEffect() as a second argument, inside the square bracket we can pass variables that whenever they're changed, they're gonna execute useEffect() function's first argument arrow function again, but if we pass an empty array, then useEffect() will only execute one time only at the beginning, which is exactly what we want, however, if we didn't pass an empty array at all i.e. we didn't pass anything to useEffect() second arg, then useEffect() will execute on every single render! and this is never what we want, that'd be like if we didn't use useEffect() at all and we put that loading notes code inside the App function body directly!
 
   // const [clickCount, setClickCount] = useState(0); // clickCount maintains the current count state, while setClickCount is a function that updates the state
   // because we need to notify react that it has to redraw the UI to display the new value, we need to create a state
@@ -35,7 +38,9 @@ function App() {
 
   return (
     <div className="App">
-      {JSON.stringify(notes)}
+      {notes.map(noteItem => ( // we call map function on our array of notes, map function takes in an arrow function, and the argument that the arrow function receives is the noteItem and now we can maniuplate each note we fetched from the backend
+        <Note note = { noteItem } key = { noteItem._id }  /> // the Note tag takes two arguments, the first argument is the NoteProps we passed to the component function which, and the second argument this `key` property is added automatically by react, react uses this key to diff and compare different notes in the array when it redraws the component, so we pass in our note's unique id
+      ))}
     </div>
   );
 }
