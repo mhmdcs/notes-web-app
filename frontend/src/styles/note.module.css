@@ -1,0 +1,8 @@
+.noteCard { /* this is how we create classes in CSS syntax, with the . notation and then curly braces */
+    background-color: cornsilk;
+    /* margin: 4px; */
+}
+
+.cardText {
+white-space: pre-line; /* we use this attribute so that if our note's text in the database contains new lines between them, the new lines are rendered */
+}
