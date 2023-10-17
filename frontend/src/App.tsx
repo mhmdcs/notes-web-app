@@ -4,6 +4,7 @@ import { Note as NoteModel } from './models/notes';
 import Note from './components/Notes';
 import { Col, Row, Container } from 'react-bootstrap';
 import styles from "./styles/notesPage.module.css";
+import * as NotesApi from './network/notes_api';
 
 // this is a function component, function components are "units of a user interface" which are JavaScript/TypeScript functions that return JSX/TSX or null. They can receive props as their argument, and they can manage an internal state.
 // Hooks like useState() and useEffect() are functions that let developers "hook into" React state and lifecycle features from function components
@@ -21,8 +22,7 @@ function App() {
       // we use await on the fetch() function call because this is an asynchronous operation; we have to load data from the backend and it could take a while
       // first param is the endpoint entire url, second param is a javascript object literal (json) because this is how we configure this api call to be a GET http verb
       try {
-        const response = await fetch("/api/notes", { method: "GET" });
-        const notes = await response.json(); // we use await here as well because parsing the json out of the response is also an async operation
+        const notes = await NotesApi.fetchNotes(); // we use await here as well because parsing the json out of the response is also an async operation
         setNotes(notes); // we call setNotes which is our state function that we destructured from the array returned by useState(), this way we update the state, and wherever in the the UI we use notes returned by useState(), it'll be the updated notes fetched from the backend
       } catch (error) {
         console.error(error);
