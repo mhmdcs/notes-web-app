@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import { Note as NoteModel } from './models/notes';
 import Note from './components/Notes';
-import { Col, Row, Container } from 'react-bootstrap';
+import { Col, Row, Container, Button } from 'react-bootstrap';
 import styles from "./styles/notesPage.module.css";
 import * as NotesApi from './network/notes_api';
+import AddNoteDialog from './components/AddNoteDialog';
 
 // this is a function component, function components are "units of a user interface" which are JavaScript/TypeScript functions that return JSX/TSX or null. They can receive props as their argument, and they can manage an internal state.
 // Hooks like useState() and useEffect() are functions that let developers "hook into" React state and lifecycle features from function components
 function App() {
   const [notes, setNotes] = useState<NoteModel[]>([]); // we initialize the state using the useState() react hook function, we pass in an empty array as the initial state, because when the website is first opened, there are no notes yet, we have to retrieve them from the backend first
+  
+  const [showAddNoteDialog, setShowAddNoteDialog] = useState(false); // we need a state that tells us if the AddNoteDialog should show up or not, because we initialized this state with false, typescript will infer that its type is Boolean so we won't have to add the generic type parameter 
+  
   // now the question is, where do we load these notes from the backend? we can't just pull them directly inside this App function body
   // because react basically redraws this whole component whenever something in it changes, and it does this by executing the App function again
   // this is what side effects are: so now when we do something inside the App function body, something that doesn't relate to the rendering itself, but something that happens in our normal app flow (like loading the notes async from the backend), and then we do that here directly inside the App function body, then react will execute it on *every* render; every time the App function is called, this is called a side-effect, which is of course not what we want, because calling the api that much is way too often and frequent  
@@ -44,6 +48,9 @@ function App() {
     // we also pass a "g-4" for the class in the <Row> tag which adds margin between our grid elements
     // we also pass a css class to our <Note> tag, so we go inside our Note component function and add another property to it
     <Container>
+      <Button onClick={() => (setShowAddNoteDialog(true))}>
+        Add New Note
+      </Button>
       <Row xs={1} md={2} xl={3} className='g-4'>
       {notes.map(noteItem => ( // we call map function on our array of notes, map function takes in an arrow function, and the argument that the arrow function receives is the noteItem and now we can maniuplate each note we fetched from the backend
         <Col  key = { noteItem._id }>
@@ -51,6 +58,14 @@ function App() {
         </Col>
       ))}
       </Row>
+      { 
+        // we add our AddNoteDialog component like every piece of react ui into our return statement, specifically, we put it inside the Container tag, it doesn't have to be inside the <Container> tag specifically, it could be inside <div> too, it just needs to be inside an outer tag
+       // we add curly braces and now we can do some react syntax that might look a bit weird at first, but this is how you can draw ui components conditionally on the screen 
+       showAddNoteDialog && // this showAddNoteDialog ampersand-ampersand means "whatever code we put after this line, it will only be drawn on the screen if and only if showAddNoteDialog is true; if showAddNoteDialog is false then it won't be rendered on the screen"
+        <AddNoteDialog
+        onDismiss={() => setShowAddNoteDialog(false)}
+        />
+      }
     </Container>
   ); // // the <Note> tag (which is our Note component function) takes two arguments, the first argument is the NoteProps we passed to the component function which, and the second argument this `key` property is added automatically by react, react uses this key to diff and compare different notes in the array when it redraws the component, so we pass in our note's unique id
 }

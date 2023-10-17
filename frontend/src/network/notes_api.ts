@@ -18,3 +18,20 @@ export async function fetchNotes(): Promise<Note[]> {
     const response = await fetchData("/api/notes", { method: "GET" }); 
     return response.json(); // remember, response.json() is an async op that returns a promise, so when fetchNotes()'s caller uses it, they have to await on its result
 }
+
+// we create a type for the note input because we don't want to use title and text separately all the time, it's good practice to make good use of types as much as you can in typescript
+interface NoteInput {
+    title: string,
+    text?: string,
+}
+
+export async function createNote(note: NoteInput): Promise<Note> {
+    const response = await fetchData("/api/notes/", { 
+        method: "POST",
+        headers: { // add headers to our request to indicate what kind of data we're sending 
+            "Content-Type": "application/json", // this tells our backend what kind of format the data we're sending will be, and of course, it'll be json
+        },
+        body: JSON.stringify(note), // since we can only send string back and forth between our frontend and our backend, we want to stringify the note object we're gonna pass
+    });
+    return response.json(); // the json returned from the response to our create note request will return the json representation of the note
+}
