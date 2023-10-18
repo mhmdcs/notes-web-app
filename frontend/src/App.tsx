@@ -42,6 +42,18 @@ function App() {
   // because we need to notify react that it has to redraw the UI to display the new value, we need to create a state
   // useState() returns an array with two values, and so we destructure the array by using the `const [clickCount, setClickCount]` syntax, the first variable is the state itself, and the second variable is used to update the state 
 
+  async function deleteNote(noteId: string) {
+   try {
+    await NotesApi.removeNote(noteId); 
+    // after we make sure that the note api call succeeds and doesn't throw an error, we update our current notes ui state so that it doesn't display the deleted note
+    // this filter function will go through each note in the notes array and then pass it to this callback one by one, and then we can decide what to do with it, we also have to return a boolean in in the body of this arrow function which is the predicate, true if we want to keep THAT note item that met the predicate in the array, and false if we want to remove THAT note item that met the predicate
+    setNotes(notes.filter((existingNote) => existingNote._id !== noteId)); // so what we're saying here is "if the current note id we're iterating through is not the same as the id of the one we're trying to delete, then keep it, but if we do find the the note id that matches the note id of the note we deleted, then remove it from the notes array"
+   } catch (error) {
+    console.error(error);
+    alert(error);
+   }
+  }
+
   return (
     // instead of HTML's <div> tag we use <Container> tag from react bootstrap
     // we use the <Row> tag to basically create grids layout for the notes
@@ -58,7 +70,12 @@ function App() {
       <Row xs={1} md={2} xl={3} className='g-4'>
       {notes.map(noteItem => ( // we call map function on our array of notes, map function takes in an arrow function, and the argument that the arrow function receives is the noteItem and now we can maniuplate each note we fetched from the backend
         <Col  key = { noteItem._id }>
-        <Note note = { noteItem } className={styles.note} /> 
+        <Note 
+        note = { noteItem } 
+        className={styles.note} 
+        onDeleteNoteClicked={(note) => {
+          deleteNote(note._id);
+        }} /> 
         </Col>
       ))}
       </Row>

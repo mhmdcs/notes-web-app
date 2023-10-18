@@ -35,3 +35,8 @@ export async function createNote(note: NoteInput): Promise<Note> {
     });
     return response.json(); // the json returned from the response to our create note request will return the json representation of the note
 }
+
+export async function removeNote(noteId: string) {
+    // we could've also written it like fetch("/api/notes/" + noteId), but backticks `` allow us to string interpolate/template literal a variable into a string
+    await fetch(`/api/notes/${noteId}`, { method: "DELETE" });
+}
