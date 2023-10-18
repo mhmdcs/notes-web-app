@@ -69,7 +69,7 @@ function App() {
         <AddNoteDialog
         onDismiss={() => setShowAddNoteDialog(false)}
         onNoteSaved={(newNote) => {
-          setNotes([...notes, newNote]) // we want to add the new note to the ui, we already know how to update notes state with the setNotes(), so we update it with the new notes array, but we don't a whole array back from the backend, we just get one note, so what we do is create a new dynamic array by populating it with the previous notes array with: [...notes] and then we add our new latest note to this new dynamic array we're passing to setNotes()
+          setNotes([...notes, newNote]) // we want to add the new note to the ui, we already know how to update notes state with the setNotes(), so we update it with the new notes array, but we don't a whole array back from the backend, we just get one note, so what we do is create a new dynamic array by populating it with the previous notes array with the ... spread operator, using the syntax [...notes] and then we add our new latest note to this new dynamic array we're passing to setNotes()
           setShowAddNoteDialog(false); // set ShowAddNoteDialog state to false so that when the note is submitted, we close the dialog immediately
         }}
         />
