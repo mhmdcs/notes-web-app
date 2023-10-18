@@ -20,7 +20,7 @@ export async function fetchNotes(): Promise<Note[]> {
 }
 
 // we create a type for the note input because we don't want to use title and text separately all the time, it's good practice to make good use of types as much as you can in typescript
-interface NoteInput {
+export interface NoteInput {
     title: string,
     text?: string,
 }

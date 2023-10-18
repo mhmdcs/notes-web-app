@@ -4,6 +4,7 @@ import { Note as NoteModel } from './models/notes';
 import Note from './components/Notes';
 import { Col, Row, Container, Button } from 'react-bootstrap';
 import styles from "./styles/notesPage.module.css";
+import stylesUtils from "./styles/utils.module.css";
 import * as NotesApi from './network/notes_api';
 import AddNoteDialog from './components/AddNoteDialog';
 
@@ -48,7 +49,10 @@ function App() {
     // we also pass a "g-4" for the class in the <Row> tag which adds margin between our grid elements
     // we also pass a css class to our <Note> tag, so we go inside our Note component function and add another property to it
     <Container>
-      <Button onClick={() => (setShowAddNoteDialog(true))}>
+      <Button 
+      className={`mb-4 ${stylesUtils.blockCenter}`}
+      onClick={() => (setShowAddNoteDialog(true))}
+      >
         Add New Note
       </Button>
       <Row xs={1} md={2} xl={3} className='g-4'>
@@ -64,6 +68,10 @@ function App() {
        showAddNoteDialog && // this showAddNoteDialog ampersand-ampersand means "whatever code we put after this line, it will only be drawn on the screen if and only if showAddNoteDialog is true; if showAddNoteDialog is false then it won't be rendered on the screen"
         <AddNoteDialog
         onDismiss={() => setShowAddNoteDialog(false)}
+        onNoteSaved={(newNote) => {
+          setNotes([...notes, newNote]) // we want to add the new note to the ui, we already know how to update notes state with the setNotes(), so we update it with the new notes array, but we don't a whole array back from the backend, we just get one note, so what we do is create a new dynamic array by populating it with the previous notes array with: [...notes] and then we add our new latest note to this new dynamic array we're passing to setNotes()
+          setShowAddNoteDialog(false); // set ShowAddNoteDialog state to false so that when the note is submitted, we close the dialog immediately
+        }}
         />
       }
     </Container>
