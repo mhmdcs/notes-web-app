@@ -53,11 +53,11 @@ const AddNoteDialog = ({onDismiss, onNoteSaved}: AddNoteDialogProps ) => { // we
                         type="text"
                         placeholder="Title"
                         isInvalid={!!errors.title} // if the error title is undefined, this will resolve to false, if the error title contains a value this will resolve to true and thus it'll mean that the title input is invalid
-                        {...register("title", { required: "Required" })} // the way we connect each <Form> input to react-hook-form might look a bit weird but this is the react way, we add curly braces because we want to pass in a javascript/typescript expression, and then we write three dots ... which means that whatever comes after these dots, gets destructured into a single component
-                        // this register call gets separated into many different properties that all get added to the <Form.Control> component, this is what this syntax means, it takes register and separates them into single pices basically
+                        {...register("title", { required: "Required" })} // the way we connect each <Form> input to react-hook-form might look a bit weird but this is the react way, we add curly braces because we want to pass in a javascript/typescript expression, and then we write three dots ... (the spread operator) which means that the object returned by the register() function will be spreading its properties onto the <Form.Control> component as props.
+                        // this register call gets destructured into many different properties that all get added to the <Form.Control> component, this is what this syntax means, it takes register and destructures its returned object into individual properties that are passed to the <Form.Control> component basically
                         // register is a function that takes an argument, the first argument is the name of the title input field, which has to be one of the properties that are contained in our NoteInput which we assigned as the generic type to useForm() hook
                         // register("title") is what connects this input field to the value that gets passed in, and react-hook-form later knows that when we submit this that this is the "title" value that it will send to our onCreate function
-                        // this might be complicating at first, but this is how html forms work in react    
+                        // this might be complicating at first, but this is how html forms work in react
                         />
                         <Form.Control.Feedback type="invalid">
                             {errors.title?.message}
@@ -70,7 +70,7 @@ const AddNoteDialog = ({onDismiss, onNoteSaved}: AddNoteDialogProps ) => { // we
                     as="textarea" // this creates a large input field
                     rows={5} // we set the size of this input field to five lines
                     placeholder="Text"
-                    {...register("text")}
+                    {...register("text")} // we use the ... spread operator to tell the compiler "hey, this register() function returns an object and that object contains A LOT of properties, rather than me destructing them and adding these properties to <Form.Control> manually, i want you to spread all of the properties of the object returned by register()""
                     />
                     </Form.Group>
                 </Form>
