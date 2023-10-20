@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import { Note as NoteModel } from './models/notes';
 import Note from './components/Notes';
-import { Col, Row, Container, Button } from 'react-bootstrap';
+import { Col, Row, Container, Button, Spinner } from 'react-bootstrap';
 import styles from "./styles/notesPage.module.css";
 import stylesUtils from "./styles/utils.module.css";
 import * as NotesApi from './network/notes_api';
@@ -16,6 +16,8 @@ function App() {
 
   const [showAddNoteDialog, setShowAddNoteDialog] = useState(false); // we need a state that tells us if the AddNoteDialog should show up or not, because we initialized this state with false, typescript will infer that its type is Boolean so we won't have to add the generic type parameter 
   const [noteToEdit, setNoteToEdit] = useState<NoteModel | null>(null);
+  const [notesLoading, setNotesLoading] = useState(true);
+  const [showNotesLoadingError, setShowNotesLoadingError] = useState(false);
 
   // now the question is, where do we load these notes from the backend? we can't just pull them directly inside this App function body
   // because react basically redraws this whole component whenever something in it changes, and it does this by executing the App function again
@@ -29,12 +31,17 @@ function App() {
       // we use await on the fetch() function call because this is an asynchronous operation; we have to load data from the backend and it could take a while
       // first param is the endpoint entire url, second param is a javascript object literal (json) because this is how we configure this api call to be a GET http verb
       try {
-        const notes = await NotesApi.fetchNotes(); // we use await here as well because parsing the json out of the response is also an async operation
+		setShowNotesLoadingError(false);
+		setNotesLoading(true);
+		const notes = await NotesApi.fetchNotes(); // we use await here as well because parsing the json out of the response is also an async operation
         setNotes(notes); // we call setNotes which is our state function that we destructured from the array returned by useState(), this way we update the state, and wherever in the the UI we use notes returned by useState(), it'll be the updated notes fetched from the backend
-      } catch (error) {
+	} catch (error) {
         console.error(error);
+		setShowNotesLoadingError(true);
         alert(error); // alert functions opens a little pop-up dialog window in the browser, not every beautiful and not a great user expereience, but it'll make do for now until we write better error-handling 
-      }
+      } finally {
+		setNotesLoading(false);
+	  }
     }
 
     loadNotes(); // we immediately call/invoke loadNotes()
@@ -56,20 +63,7 @@ function App() {
     }
   }
 
-  return (
-    // instead of HTML's <div> tag we use <Container> tag from react bootstrap
-    // we use the <Row> tag to basically create grids layout for the notes
-    // also, in the <Row> tag, we add some configurations for how many items we want to display on each row based on the screen size, xs means small screen sizes, md means medium, xl means large
-    // we also pass a "g-4" for the class in the <Row> tag which adds margin between our grid elements
-    // we also pass a css class to our <Note> tag, so we go inside our Note component function and add another property to it
-    <Container>
-      <Button
-        className={`mb-4 ${stylesUtils.blockCenter} ${stylesUtils.flexCenter}`}
-        onClick={() => (setShowAddNoteDialog(true))}>
-        <FaPlus />
-        Add New Note
-      </Button>
-      <Row xs={1} md={2} xl={3} className='g-4'>
+  const notesGrid = <Row xs={1} md={2} xl={3} className={`g-4 ${styles.notesGrid}`}>
         {notes.map(noteItem => ( // we call map function on our array of notes, map function takes in an arrow function, and the argument that the arrow function receives is the noteItem and now we can maniuplate each note we fetched from the backend
           <Col key={noteItem._id}>
             <Note
@@ -82,6 +76,27 @@ function App() {
           </Col>
         ))}
       </Row>
+
+  return (
+    // instead of HTML's <div> tag we use <Container> tag from react bootstrap
+    // we use the <Row> tag to basically create grids layout for the notes
+    // also, in the <Row> tag, we add some configurations for how many items we want to display on each row based on the screen size, xs means small screen sizes, md means medium, xl means large
+    // we also pass a "g-4" for the class in the <Row> tag which adds margin between our grid elements
+    // we also pass a css class to our <Note> tag, so we go inside our Note component function and add another property to it
+    <Container className={styles.notesPage} >
+      <Button
+        className={`mb-4 ${stylesUtils.blockCenter} ${stylesUtils.flexCenter}`}
+        onClick={() => (setShowAddNoteDialog(true))}>
+        <FaPlus />
+        Add New Note
+      </Button>
+      {notesLoading && <Spinner animation='border' variant='primary'/>}
+	  {showNotesLoadingError && <p>Something went wrong! Please refresh the page {'\u{1F60A}'}</p>}
+	  {!notesLoading && !showNotesLoadingError &&
+	  <>
+	  { notes.length > 0 ? notesGrid : <p>You don't have any notes yet</p> }
+	  </>
+	  }
       {
         // we add our AddNoteDialog component like every piece of react ui into our return statement, specifically, we put it inside the Container tag, it doesn't have to be inside the <Container> tag specifically, it could be inside <div> too, it just needs to be inside an outer tag
         // we add curly braces and now we can do some react syntax that might look a bit weird at first, but this is how you can draw ui components conditionally on the screen 
