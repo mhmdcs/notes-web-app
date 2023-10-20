@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import mongoose from "mongoose";
 
 // we export this function from our controllers to our routes (i.e. so that our routes can import it and use it)
-// this is a different way of exporting modules than `export default` which exports one module, when we omit the `default` keyword, we can export multiple things
+// this is a different way of exporting modules than `export default` which exports one module, when we omit the `default` keyword, we can export multiple things by their names
 export const getNotes: RequestHandler = async (request, response, next) => { // we use the async keyword before the arrow function because we want this to be an asynchronous function, and because we can only use the `await` keyword inside functions declared with the `async` keyword
     try {
         // throw Error("Boom!");
@@ -13,13 +13,13 @@ export const getNotes: RequestHandler = async (request, response, next) => { // 
         response.status(200).json(notes); // we send a 200 OK HTTP response to the client. We DON'T just return the response in the form of text, instead, we return the response in the form of json so that the client can parse it    
     } catch (error) {
         // in every route we either send a response, like we did with the 200 above, or we call next() which forwards this request to the next middleware, middlewares are pieces of code that know how to handle a request on our express server, it's a concept from the express library, 
-        // both app.get(), app.post(), app.use(), etc create such middlewares, the difference is that app.get(), app.post(), all of these HTTP verbs etc, they create middlwares that create these endpoints that we can call, like / and /notes etc, while app.use() is an other type of middlware that we just use in our code to either prepare our response in a specific way, or handle it like with our error handler below, and the error handler is a very specific kind of middlware that basically kicks in whenever we have an error 
+        // both app.get(), app.post(), app.use(), etc create such middlewares, the difference is that app.get(), app.post(), all of these HTTP verbs etc, they create middlwares that create these endpoints that we can call, like `/` and `/notes` etc, while app.use() is an other type of middlware that we just use in our code to either prepare our response in a specific way, or handle it like with our error handler middleware, and the error handler is a very specific kind of middlware that basically kicks in whenever we have an error 
         next(error);
     }
 }
 
 export const getNote: RequestHandler = async (request, response, next) => {
-    const noteId = request.params.noteId; // we take the noteId we expect to be passed in the http get params
+    const noteId = request.params.noteId; // we take the noteId we expect to be passed in the http GET url params
     try {
 
         if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
@@ -71,10 +71,10 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
     } catch (error) {
         next(error);
     }
-} // now there's a problem when we want to test this, with the brower we can only send get requests to the server, so we'll have to use tools like postman or curl to send more intricate HTTP requests like post requests to test them against our server, assuming our client hasn't been built yet 
+} // now there's a problem when we want to test this, with the browser and without a proper client web app, we can only send GET requests to the server, so we'll have to use tools like postman or curl to send more intricate HTTP requests like POST and DELETE requests to test them against our server, these tools help us when the client hasn't been built yet
 
 // earlier, we didn't define a type for when we fetched the noteId from the endpoint's URL params in getNote, because we didn't specify any generic types to RequestHandler
-// but now, since we're updating a note and thus we're passing a type to the third parameter (reqBody), we're forced to either declare the rest of the generic types as either unknown (a type that's like any, but the difference is that we can't perform aribtrary operations on `unknown`s), or to declare a proper type for the request params
+// but now, since we're updating a note and thus we're passing a type to the third parameter (reqBody), we're forced to either declare the rest of the generic types as either unknown (a type that's like any, but the difference is that we can't perform aribtrary operations on `unknown`s, so it's safer), or to declare a proper type for the request params
 // and because of those unknown generic types, if we tried to use `request.params.noteId` it wouldn't work because `params` is of type `unknown`, and thus, we'll have to create a type for the NoteId and pass it to the first generic type parameter
 
 interface UpdateNoteParams {
