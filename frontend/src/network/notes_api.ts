@@ -40,3 +40,15 @@ export async function removeNote(noteId: string) {
     // we could've also written it like fetch("/api/notes/" + noteId), but backticks `` allow us to string interpolate/template literal a variable into a string
     await fetch(`/api/notes/${noteId}`, { method: "DELETE" });
 }
+
+export async function updateNote(noteId: string, note: NoteInput): Promise<Note> {
+    const response = await fetchData(`/api/notes/${noteId}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(note)
+    });
+
+    return response.json();
+}
