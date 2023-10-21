@@ -28,7 +28,7 @@ app.use("/api/users", userRoutes);
 // we basically return an error that says "route not found" or "endpoint not found"
 app.use((request, response, next) => {
     next(createHttpError(404, "endpoint not found")) // by passing createHttpError (method which returns HttpError instance) to next() with status 404 (resource not found), we're forwarding this to our handler below 
-});
+}); //  Each middleware function typically has access to the req (request), res (response), and next (a callback) objects. Calling the next() function inside a middleware tells Express to move on to the next middleware or route handler.
 
 // this is express error handler, express error handler must take these four arguments with these exact types in order to work
 // we can reuse this error handler by calling it in every endpoint's catch block while passing the error to the next() function
