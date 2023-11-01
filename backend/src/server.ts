@@ -1,3 +1,5 @@
+// server.ts/server.js, usually called index.ts/index.js by default, but we renamed it
+// index.js is the index of Node.js, it is the file that runs initially once the Node.js code is executed. It is responsible for your application's startup, routing, and other functions. Other modules, such as Express, Mongoose, Axios, and others, are used in adding functionalities to a Node.
 import app from "./app";
 import env from "./util/validateEnv"; // because validateEnv only has one default export, we could name `env` anything we want, we could name it `chocolate` even, this would be a diferent case if validateEnv contained different exports because the names would have to be correct. Thanks to the envalid package/dependency, env.port and env.MONGO_DB_CONNECTION are definitely typed, PORT is number and MONGO_DB_CONNECTION is string, which means they're guaranteed not to be undefined 
 import mongoose from "mongoose";
