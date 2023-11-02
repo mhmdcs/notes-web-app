@@ -48,9 +48,9 @@ interface CreateNoteBody {
 // we have to declare the four different type arguments, because this is all or nothing, either we declare no type (`unknown` type), or all, and by all i mean the bodies (ResBody and ReqBody), the URL params (P), the URL queries (ReqQuery)
 // we'll pass our CreateNoteBody interface as a type to the third generic type argument (ReqBody), for the rest, we will leave them untouched by passing `unknown`, so why do we pass `unknown` instead of `any`? because `any` is unsafe, `any` basically allows us to call anything on these variables, while `unknown` is much more restrictive and thus safer
 export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknown> = async (request, response, next) => { // we make this function (arrow function, callback, etc) an async function because it's doing a very slow database insert operation
-    const title = request.body.title; // before passing our CreateNoteBody type, title was of type `any`, after passing CreateNoteBody, `title` became of type `string`, and when we made title optional in the CreateNoteBody interface, title's type became either "string" or "undefined", undefined is a possible type for title because we can't guarantee that whoever sends these reqeusts actually sent a title
+    const title = request.body.title; // before passing our CreateNoteBody type, title was of type `any`, but after passing CreateNoteBody as a generic type argument, `title` became of type `string`, and when we made title optional in the CreateNoteBody interface, title's type became either "string" or "undefined", undefined is a possible type for title because we can't guarantee that whoever sends these reqeusts actually sent a title
     const text = request.body.text;
-    // because title and text are of type `any`, meaning that typescript doesn't know their types, it means that their type could be anything, from strings to numbers, so we have to make an CreateNoteBody interface to make them typed to tell typescript what types we should expect
+    // because title and text are of type `any` by default, meaning that typescript doesn't know their types, it means that their type could be anything, from strings to numbers, so we have to make an CreateNoteBody interface to make them typed to tell typescript what types we should expect
 
     console.log("someone called createNote!")
     // when a client tries to create a note without a title, which is mandatory, mongoose throws its own default error message, and it doesn't have an http status code associated with it, so it falls back to our middleware's error-handler's 500 default code
@@ -73,7 +73,7 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
     }
 } // now there's a problem when we want to test this, with the browser and without a proper client web app, we can only send GET requests to the server, so we'll have to use tools like postman or curl to send more intricate HTTP requests like POST and DELETE requests to test them against our server, these tools help us when the client hasn't been built yet
 
-// earlier, we didn't define a type for when we fetched the noteId from the endpoint's URL params in getNote, because we didn't specify any generic types to RequestHandler
+// earlier, we didn't need to define a type for when we fetched the noteId from the endpoint's URL params in getNote, because we didn't specify any generic types to RequestHandler
 // but now, since we're updating a note and thus we're passing a type to the third parameter (reqBody), we're forced to either declare the rest of the generic types as either unknown (a type that's like any, but the difference is that we can't perform aribtrary operations on `unknown`s, so it's safer), or to declare a proper type for the request params
 // and because of those unknown generic types, if we tried to use `request.params.noteId` it wouldn't work because `params` is of type `unknown`, and thus, we'll have to create a type for the NoteId and pass it to the first generic type parameter
 

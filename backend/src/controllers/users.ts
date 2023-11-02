@@ -16,12 +16,12 @@ export const signUp: RequestHandler<unknown, unknown, CreateUserBody, unknown> =
 
     try {
 
-        if (!username || !email || !rawPassword) { // as usual, we do some input validation so that we get proper error messages instad of relying on the crypto error messages from the database
+        if (!username || !email || !rawPassword) { // as usual, we do some input validation so that we get proper error messages instad of relying on the crypted error messages from the database
             throw createHttpError(400, "missing user data"); // we throw 400 for bad request
         }
 
         // we also wanna keep the usernames and emails unique, so that no two users with the same username or email address can sign up, we could skip these checks since our schema already enforces uniqueness on these fields, but we'll still handle them ourselves here because we want to throw our own errors instead of relying on mongoose default errors because we want to have better error messages and better status codes
-        // findOne() returns us one single document if the filter fits
+        // findOne() returns us one single document if the filter fits (in noSQL no-relational dbs, document = row (record), collection = table, fields = columns)
         const existingUserName = await UserModel.findOne({ username: username }).exec();
 
         if (existingUserName) {

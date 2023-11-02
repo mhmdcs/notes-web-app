@@ -8,7 +8,7 @@ import createHttpError, { isHttpError } from "http-errors"; // we could create o
 // Default exports can be imported with `import <name> from "<module-name>";` syntax, like `import express from "express";`
 // Modules can also be imported just for their side effects, without importing any specific values or functions by using the `import "<module-name>";` syntax, like `import "dotenv/config";`
 
-// in app.ts we define our backend's app object, and pass to it our app object our routes, which contain the endpoints (and the routes call the controllers, which contain the logic that "controls" how responses should behave)
+// in app.ts we define our backend's app object, and pass to our app object the endpoints (the paths) and our routes (which also contain sub pathes/endpoints), and the routes call the controllers, which contain the logic that "controls" how responses should behave.
 
 const app = express(); // the app constant is basically our server, this is where we add endpoints and everything
 
