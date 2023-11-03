@@ -33,7 +33,7 @@ export async function createNote(note: NoteInput): Promise<Note> {
         headers: { // add headers to our request to indicate what kind of data we're sending 
             "Content-Type": "application/json", // this tells our backend what kind of format the data we're sending will be, and of course, it'll be json
         },
-        body: JSON.stringify(note), // since we can only send string back and forth between our frontend and our backend, we want to stringify the note object we're gonna pass, because the note object is only understandable by javascript, and while our backend is also written in javascript, the communication protocol we use (HTTP) does not, thus we stringify our javascript objects, which means turning them into json represented as a string.
+        body: JSON.stringify(note), // since we can only send bytes back and forth between our frontend and our backend, we want to stringify (serialize) the note object we're gonna pass, because the note object is only understandable by javascript, and while our backend is also written in javascript, the communication protocol we use (HTTP) does not, HTTP only understands bytes, thus we stringify our javascript objects, which means turning them into json represented as a string.
     });
     return response.json(); // the json returned from the response to our create note request will return the json representation of the note
 }
@@ -54,3 +54,18 @@ export async function updateNote(noteId: string, note: NoteInput): Promise<Note>
 
     return response.json();
 }
+
+/*
+JSON.stringify():
+- `JSON.stringify()` is a method provided by the Web APIs for JavaScript environments and it is available in both browser and Node.js environments.
+- It converts a JavaScript object into a JSON string. This process is called serialization. The JSON string is a textual representation of the data, which can be transmitted over a network and understood by various programming environments, not just JavaScript.
+
+response.status().json():
+- In Node.js, specifically with Express.js (a web application framework for Node.js), `response.status().json()` sets the HTTP status for the response and then sends a JSON response. This method does two things: it serializes the JavaScript object passed to it into a JSON string (like `JSON.stringify()`), and it also sets the appropriate `Content-Type` header (`application/json`), indicating to the client that the data format is JSON.
+
+Data Transfer in HTTP:
+- When you send data from a client to a server or vice versa, you are indeed sending a sequence of bytes. HTTP doesn't have a built-in understanding of JavaScript objects; it deals with streams of bytes. Strings in JavaScript are serialized into bytes for transmission. When we talk about HTTP "understanding" strings, we really mean that HTTP is a protocol that can transmit textual data (among other kinds of data), which it does by sending bytes over a network.
+- When you send a JSON string, it is encoded into bytes using a character encoding (typically UTF-8) and transmitted over the network. The receiving end then decodes the bytes back into a string, and if it's JSON, it can be parsed back into an object or data structure by the recipient's programming environment (this is called deserialization).
+
+So, in summary, you serialize JavaScript objects into JSON strings because JSON is a text-based data interchange format that is language-independent. The text can be transmitted over the network as a sequence of bytes and then parsed into native data structures in whatever programming language is being used on the other end.
+*/
