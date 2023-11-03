@@ -1,8 +1,8 @@
 import { Note } from "../models/notes";
 
-// this .ts module contains the lower-level fetch code logic, so that App.tsx only cares about displaying the data
+// this .ts module contains the lower-level fetch code logic, so that App.tsx is only concerned and only cares about displaying the data
 
-// because javascript's fetch() function does not throw errors upon 400-500 responses, we need to create a wrapper for it that explicitly throws errors upon non-ok (non-200 i.e. 400-500) responses, and call that instead
+// because javascript's fetch() function does not throw errors upon 400-500 responses, we need to create a wrapper for it that explicitly throws errors upon non-ok (non-200s i.e. 400-500) responses, and call that instead
 async function fetchData(input: RequestInfo, init: RequestInit) {
         const response = await fetch(input, init);
         if (response.ok) {
@@ -14,6 +14,8 @@ async function fetchData(input: RequestInfo, init: RequestInit) {
         }
 }
 
+// we use await on the fetch() function call because this is an asynchronous operation; we have to load data from the backend and it could take a while
+// first param is the endpoint entire url, second param is a javascript object literal (json) because this is how we configure this api call to be a GET http verb
 export async function fetchNotes(): Promise<Note[]> {
     const response = await fetchData("/api/notes", { method: "GET" }); 
     return response.json(); // remember, response.json() is an async op that returns a promise, so when fetchNotes()'s caller uses it, they have to await on its result

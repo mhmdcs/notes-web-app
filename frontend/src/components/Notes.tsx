@@ -5,19 +5,19 @@ import { Note as NoteModel } from "../models/notes" // we use alias NoteModel
 import { formatDate } from '../utils/formatDate';
 import { MdDelete } from "react-icons/md" // google's material designs delete icon 
 
-// in order to display data in each note, we have to pass the note itself to the Note function component, right? to declare what type of data this note should receive we make a NoteProps interface for this type
+// in order to display data in each note, we have to pass the note itself to the Note function component, and to declare what type of data this note should receive, we make a NoteProps interface, props meaning properties
 interface NoteProps {
   note: NoteModel,
-  onNoteClicked: (note: NoteModel) => void, // the caller of this callback will decide what they want to do when this note is clicked, this callback function takes the note that was clicked and forwards it to the caller so that it can open the AddEditDialog for example, and while we couldv'e put the AddEditDialog directly into this component, we'll instead pass this onClick callback to the caller of the component instead because this makes our code more flexible and modular, this is called hoisting which means moving the state/callback one level higher
+  onNoteClicked: (note: NoteModel) => void, // the caller of this callback will decide what they want to do when this note is clicked, this callback function takes the note that was clicked and forwards it to the caller, so that the caller can open the AddEditDialog for example, and while we couldv'e put the AddEditDialog directly into this component, we'll instead pass this onClick callback to the caller of the component, because this makes our code more flexible and modular, this is called hoisting which means moving the state/callback one level higher
   onDeleteNoteClicked: (note: NoteModel) => void, // in this callback, we will forward the whole note item object that we clicked, so that the caller can later decide what to do with this information (in other words, the caller will make the api call to delete the note via the note's id)
   className?: string, // we create a new attribute to the <Note> named className just like the name of the attribute in other tags that accepts css classes, we make this optional with ? so that we can pass a className to this component or we can omit it
 }
 
 // we create a component for our Note that contains the HTML layout of each note
-// Note is a function component using arrow functions, while in our App.tsx (our entire web app itself) also contains a component function
+// Note is a function component using arrow functions, while in our App.tsx (our entire web app itself) contains a component function declared with the regular syntax
 // component functions basically create "a piece of the UI"
 
-// we create an arrow function and we name the function's first letter is in uppercase
+// we create an arrow function and we write the function's first letter in uppercase
 // inside the arrow function's first argument, we pass in the props, props (short for properties) are the arguments we pass to function components 
 // inside the arrow function's body, we declare the UI for our Note component using Card tags from the react-bootstrap library, which look nice
 const Note = ({ note, onNoteClicked, onDeleteNoteClicked, className }: NoteProps) => { // because we passed in the note data props inside our component, we can use our note data model inside the function component, we also pass the className so we can pass a className from the outside (i.e. to allow the caller of this Note component to style it with a css class)
@@ -28,9 +28,9 @@ const Note = ({ note, onNoteClicked, onDeleteNoteClicked, className }: NoteProps
     createdAt,
     updatedAt,
 
-  } = note; // we destructure the note's values  like this
+  } = note; // we destructure the note's values like this
 
-  // now remember that whatever we use inside this function componenet body, it'll be re-executed on every render, this is ok because formatDate() is a cheap operation, so we can afford executing it on every render, but if it was expensive you should use something like useEffect() or useMemo(), which is a holder for these expensive operations
+  // now remember that whatever we write inside this function componenet body, it'll be re-executed on every render, and this is ok because formatDate() is a cheap operation, so we can afford executing it on every render, but if it was expensive you should use something like useEffect() or useMemo(), which is a holder for these expensive operations
   // but cheap, inexpensive operations can be executed inside the body of the component, just be aware that this will block and the rendering of the component will not finish until this code is executed 
   let noteTimestamp: string = "Created: " + formatDate(createdAt);
   if (updatedAt > createdAt) { // if updatedAt's unix milliseconds is larger than createdAt's unix milliseconds, then it means that the note has been updated
@@ -41,7 +41,7 @@ const Note = ({ note, onNoteClicked, onDeleteNoteClicked, className }: NoteProps
     // we pass to Card as an arugment the class name of the css style we defined
     // in normal html this className attribute would've just been named `class` but because we're inside tsx/jsx and `class` is a keyword reserved for typescript/javascript, we call it className instead
     // we want to add our NoteProps's className to the <Card>, to the outer most component, so we can style it from the outside
-    // so how do we add multiple className? we wrap classNames with `` backtick and curly braces {} and $, because `` backticks allow us to put variables inside the string, then we use the $ to call the variable, and the {} when the variable has nested elements
+    // so how do we add multiple className? we wrap classNames with curly braces {} and `` backtick and use $ for each style/class that are each also surrounded by {} curly braces, because `` backticks allow us to put variables inside the string, then we use the $ to call the variable, and the {} when the variable has nested elements
     <Card
     onClick={() => onNoteClicked(note)}
     className={`${styles.noteCard} ${className}`}>
