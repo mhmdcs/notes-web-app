@@ -33,7 +33,7 @@ export async function createNote(note: NoteInput): Promise<Note> {
         headers: { // add headers to our request to indicate what kind of data we're sending 
             "Content-Type": "application/json", // this tells our backend what kind of format the data we're sending will be, and of course, it'll be json
         },
-        body: JSON.stringify(note), // since we can only send string back and forth between our frontend and our backend, we want to stringify the note object we're gonna pass
+        body: JSON.stringify(note), // since we can only send string back and forth between our frontend and our backend, we want to stringify the note object we're gonna pass, because the note object is only understandable by javascript, and while our backend is also written in javascript, the communication protocol we use (HTTP) does not, thus we stringify our javascript objects, which means turning them into json represented as a string.
     });
     return response.json(); // the json returned from the response to our create note request will return the json representation of the note
 }
