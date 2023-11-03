@@ -68,7 +68,7 @@ const AddEditNoteDialog = ({ noteToEdit, onDismiss, onNoteSaved }: AddEditNoteDi
                         <Form.Control
                             type="text"
                             placeholder="Title"
-                            isInvalid={!!errors.title} // if the errors.title is undefined, this will resolve to false and thus mean that the title input is valid, but if the errors title contains a value this will resolve to true and thus it'll mean that the title input is invalid
+                            isInvalid={!!errors.title} // we call the errors state from the useForm() hook. If the errors.title is undefined, this will resolve to false and thus mean that the title input is valid, but if the errors title contains a value this will resolve to true and thus it'll mean that the title input is invalid
                             {...register("title", { required: "Required" })} // the way we connect each <Form> input to react-hook-form might look a bit weird but this is the react way, we add curly braces because we want to pass in a javascript/typescript expression, and then we write three dots ... (the spread operator) which means that the object returned by the register() function will be spreading its properties onto the <Form.Control> component as props.
                         // this register call gets destructured into many different properties that all get added to the <Form.Control> component, this is what this syntax means, it takes register and destructures its returned object into individual properties that are passed to the <Form.Control> component basically
                         // register is a function that takes an argument, the first argument is the name of the title input field, which has to be one of the properties that are contained in our NoteInput which we assigned as the generic type to useForm() hook
@@ -96,7 +96,7 @@ const AddEditNoteDialog = ({ noteToEdit, onDismiss, onNoteSaved }: AddEditNoteDi
                 <Button
                     type="submit" // the property of the Button component `type` can take a "submit" type, this is not an arbitrary string, this actually has a special submit effect, this is the property that tells html that this is the button for sending the form, but since this button is disconnected from the <Form> tag, then the browser wouldn't know that these tags are connected, but we can fix this by linking the id of the Form tag to this Button tag with the `form` property
                     form="addEditNoteForm"
-                    disabled={isSubmitting} // we debounce - we don't want the user to spam submit clicks and thus accidently submit multiple duplicate notes to the backend and database, so we use the isSubmitting boolean from useForm() hook and pass it to the `disabled` <Button> property 
+                    disabled={isSubmitting} // we debounce - we don't want the user to spam submit clicks and thus accidently submit multiple duplicate notes to the backend and database, so we use the isSubmitting boolean state from useForm() hook and pass it to the `disabled` <Button> property 
                 >
                     Save
                 </Button>
