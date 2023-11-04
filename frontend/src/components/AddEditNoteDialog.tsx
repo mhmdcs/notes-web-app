@@ -3,6 +3,7 @@ import { Note } from "../models/notes";
 import { useForm } from "react-hook-form";
 import { NoteInput } from "../network/notes_api";
 import * as NotesApi from "../network/notes_api";
+import TextInputField from "./form/TextInputField";
 
 // we add an interface because we want to pass data to AddNoteDialog component, this is what's known as a props (properties) which are arguments passed to the component
 // we want to add a way to close the dialog whenver we click outside of the dialog or click the close button, all of this will be detected inside AddNoteDialog, and the caller of AddNoteDialog will be notified about it
@@ -63,32 +64,24 @@ const AddEditNoteDialog = ({ noteToEdit, onDismiss, onNoteSaved }: AddEditNoteDi
                 // notice how the syntax for what we assign to the onSubmit property is onSubmit={handleSubmit(onCreate)} and not onSubmit={ () => { handleSubmit(onCreate) } }, this is because we want the handleSubmit() function to be invoked/called/executed immediately at initialization (i.e. while the component is being rendered), because handleSubmit() returns a function reference that handles the event for us.
                 // we do NOT want handleSubmit() to be executed at some point later when the submit icon is clicked after the component has been already rendered, we want it to execute RIGHT now during rendering.
                 >
-                    <Form.Group className="mb-3">
-                        <Form.Label>Title</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Title"
-                            isInvalid={!!errors.title} // we call the errors state from the useForm() hook. If the errors.title is undefined, this will resolve to false and thus mean that the title input is valid, but if the errors title contains a value this will resolve to true and thus it'll mean that the title input is invalid
-                            {...register("title", { required: "Required" })} // the way we connect each <Form> input to react-hook-form might look a bit weird but this is the react way, we add curly braces because we want to pass in a javascript/typescript expression, and then we write three dots ... (the spread operator) which means that the object returned by the register() function will be spreading its properties onto the <Form.Control> component as props.
-                        // this register call gets destructured into many different properties that all get added to the <Form.Control> component, this is what this syntax means, it takes register and destructures its returned object into individual properties that are passed to the <Form.Control> component basically
-                        // register is a function that takes an argument, the first argument is the name of the title input field, which has to be one of the properties that are contained in our NoteInput which we assigned as the generic type to useForm() hook
-                        // register("title") is what connects this input field to the value that gets passed in, and react-hook-form later knows that when we submit this, that this is the "title" value that it will send to our onCreate function
-                        // this might be complicated at first, but this is how html forms work in react, and it gets easier the more you use it
-                        />
-                        <Form.Control.Feedback type="invalid">
-                            {errors.title?.message}
-                        </Form.Control.Feedback>
-                    </Form.Group>
+                    <TextInputField
+                    name="title"
+                    label="Title"
+                    register={register}
+                    registerOptions={{ required: "Required" }}
+                    error={errors.title} // we call the errors state from the useForm() hook.
+                    type="text"
+                    placeholder="Note Title"
+                    />
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Text</Form.Label>
-                        <Form.Control
-                            as="textarea" // this creates a large input field
-                            rows={5} // we set the size of this input field to five lines
-                            placeholder="Text"
-                            {...register("text")} // we use the ... spread operator to tell the compiler "hey, this register() function returns an object and that object contains A LOT of properties, rather than me destructing them and adding these properties to <Form.Control> manually, i want you to spread all of the properties of the object returned by register()"
-                        />
-                    </Form.Group>
+                    <TextInputField 
+                    name="text"
+                    label="Text"
+                    register={register}  // we use the ... spread operator to tell the compiler "hey, this register() function returns an object and that object contains A LOT of properties, rather than me destructing them and adding these properties to <Form.Control> manually, i want you to spread all of the properties of the object returned by register()"
+                    as="textarea" // this creates a large input field
+                    rows={5} // we set the size of this input field to five lines
+                    placeholder="Note Text"
+                    />
                 </Form>
             </Modal.Body>
 

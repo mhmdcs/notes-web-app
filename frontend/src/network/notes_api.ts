@@ -1,4 +1,5 @@
 import { Note } from "../models/notes";
+import { User } from "../models/user";
 
 // this .ts module contains the lower-level fetch code logic, so that App.tsx is only concerned and only cares about displaying the data
 
@@ -12,6 +13,50 @@ async function fetchData(input: RequestInfo, init: RequestInit) {
             const errorMessage = errorBody.error; // since in the backend we always return a json object with 400-500 that contains a json key named `error` with the value error string, we call `errorBody.error`
             throw Error(errorMessage);
         }
+}
+
+export async function getLoggedInUser(): Promise<User> {
+    const response = await fetchData("/api/users/", { method: "GET" }) // since the frontnd and backend are on the same domain/ip address (that is, localhost currently), this will actually send the cookie in the header to the backend automatically, so we won't have to do anything special here to send the cookies, if they were on different domains/ip addresses, then we'll have to include the credentials explicitly in the fetch() function configurations (second parameter)
+    return response.json(); // we will either get the logged in user object, or we'll get a 401 response if we aren't
+}
+
+export interface SignUpCredentials {
+    username: string,
+    email: string,
+    password: string,
+}
+
+export async function signup(credentials: SignUpCredentials): Promise<User> {
+    const response = await fetchData("/api/users/signup", 
+    { 
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+    })
+    return response.json();
+}
+
+export interface LoginCredentials {
+    username: string,
+    password: string,
+}
+
+export async function login(credentials: LoginCredentials): Promise<User> {
+    const response = await fetchData("/api/users/login", { 
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+    })
+    return response.json();
+}
+
+export async function logout() {
+    // logout() doesn't take any arguments, doesn't return anything, we know that it went successful if fetchData() doesn't throw
+    await fetchData("/api/users/logout", { method: "POST" }) // again, since the frontnd and backend are on the same domain/ip address (that is, localhost currently), this will actually send the cookie in the header to the backend automatically, so we won't have to do anything special here to send the cookies, if they were on different domains/ip addresses, then we'll have to include the credentials explicitly in the fetch() function configurations (second parameter) 
 }
 
 // we use await on the fetch() function call because this is an asynchronous operation; we have to load data from the backend and it could take a while
