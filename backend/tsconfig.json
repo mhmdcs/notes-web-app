@@ -31,7 +31,10 @@
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
-    // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
+    "typeRoots": [
+      "node_modules/@types", // this points to ./node_modules/@types which contain types that we install via npm
+      "@types" // this points to our own ./@types which contain types we define our own
+    ], // here we tell typescript what the type defintions are, by default this is commented out, and by default typescript already knows to look for type defintions inside ./node_modules/@types, but when we uncomment this, we will need to point it towards both our own ./@types directory and ./node_modules/@types directory                                 /* Specify multiple folders that act like './node_modules/@types'. */
     // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
@@ -105,6 +108,9 @@
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+  },
+  "ts-node": { // we will need to add this ts-node configuration to tsconfig.json so that ts-node recognizes our own @types definitions, remember that ts-node is what we use to automatically restart our server during development whenever we save changes. ts-node JIT transforms (transpiles) TypeScript into JavaScript, enabling you to directly execute TypeScript on Node. js without precompiling.
+    "files": true
   },
   "include": [  "**/*" ]
 }
