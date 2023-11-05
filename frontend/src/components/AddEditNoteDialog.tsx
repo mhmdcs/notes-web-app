@@ -88,7 +88,7 @@ const AddEditNoteDialog = ({ noteToEdit, onDismiss, onNoteSaved }: AddEditNoteDi
             <Modal.Footer>
                 <Button
                     type="submit" // the property of the Button component `type` can take a "submit" type, this is not an arbitrary string, this actually has a special submit effect, this is the property that tells html that this is the button for sending the form, but since this button is disconnected from the <Form> tag, then the browser wouldn't know that these tags are connected, but we can fix this by linking the id of the Form tag to this Button tag with the `form` property
-                    form="addEditNoteForm"
+                    form="addEditNoteForm" // we pass the id of the form component that we want this submit button to be linked with (so that Form's onSubmit get executed), we pass the id because this Button exists within another component that's outside Form component, and so by default it has no idea of what componet it's supposed to be the submit button for.
                     disabled={isSubmitting} // we debounce - we don't want the user to spam submit clicks and thus accidently submit multiple duplicate notes to the backend and database, so we use the isSubmitting boolean state from useForm() hook and pass it to the `disabled` <Button> property 
                 >
                     Save

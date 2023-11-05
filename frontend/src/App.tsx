@@ -7,6 +7,7 @@ import stylesUtils from "./styles/utils.module.css";
 import * as NotesApi from './network/notes_api';
 import AddEditNoteDialog from './components/AddEditNoteDialog';
 import { FaPlus } from "react-icons/fa";
+import SignUpModal from './components/SignUpModal';
 
 // this is a function component, function components are "units of a user interface" which are JavaScript/TypeScript functions that return JSX/TSX or null. They can receive props as their argument, and they can manage an internal state.
 // Hooks like useState() and useEffect() are functions that let developers "hook into" React state and lifecycle features from function components
@@ -17,6 +18,8 @@ function App() {
   const [noteToEdit, setNoteToEdit] = useState<NoteModel | null>(null);
   const [notesLoading, setNotesLoading] = useState(true);
   const [showNotesLoadingError, setShowNotesLoadingError] = useState(false);
+
+  const [showSignUpModal, setShowSignUpModal] = useState(false);
 
   // now the question is, where do we load these notes from the backend? we can't just pull them directly inside this App function body
   // because react basically redraws this whole component whenever something in it changes; meaning it re-executes this App function component every time it re-renders and thus it'll re-execute any code in it.
@@ -121,6 +124,15 @@ function App() {
       }
       }
       />
+      }
+
+      { showSignUpModal &&
+        <SignUpModal
+        onDismiss={()=>{ setShowSignUpModal(false); }}
+        onSuccessSignUp={ user => {
+          // do stuff with User object
+        }}
+        />
       }
     </Container>
   ); 
