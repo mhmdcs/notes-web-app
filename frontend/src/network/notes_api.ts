@@ -54,7 +54,7 @@ export async function login(credentials: LoginCredentials): Promise<User> {
     return response.json();
 }
 
-export async function logout() {
+export async function logout() { // logout doesn't take any params because our browser will handle sending the logout cookie session in the header to this HTTP request to the server
     // logout() doesn't take any arguments, doesn't return anything, we know that it went successful if fetchData() doesn't throw
     await fetchData("/api/users/logout", { method: "POST" }) // again, since the frontnd and backend are on the same domain/ip address (that is, localhost currently), this will actually send the cookie in the header to the backend automatically, so we won't have to do anything special here to send the cookies, if they were on different domains/ip addresses, then we'll have to include the credentials explicitly in the fetch() function configurations (second parameter) 
 }

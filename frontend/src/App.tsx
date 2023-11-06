@@ -8,6 +8,8 @@ import * as NotesApi from './network/notes_api';
 import AddEditNoteDialog from './components/AddEditNoteDialog';
 import { FaPlus } from "react-icons/fa";
 import SignUpModal from './components/SignUpModal';
+import LoginModal from './components/LoginModal';
+import NavBar from './components/NavBar';
 
 // this is a function component, function components are "units of a user interface" which are JavaScript/TypeScript functions that return JSX/TSX or null. They can receive props as their argument, and they can manage an internal state.
 // Hooks like useState() and useEffect() are functions that let developers "hook into" React state and lifecycle features from function components
@@ -84,7 +86,13 @@ function App() {
       </Row>
 
   return (
-    // instead of HTML's <div> tag we use <Container> tag from react bootstrap
+    <div>
+      <NavBar
+      loggedInUser={null}
+      onLoginClicked={() => {}}
+      onSignUpClicked={() => {}}
+      onLogoutSuccess={() => {}}
+      />
     <Container className={styles.notesPage} >
       <Button
         className={`mb-4 ${stylesUtils.blockCenter} ${stylesUtils.flexCenter}`}
@@ -126,7 +134,7 @@ function App() {
       />
       }
 
-      { showSignUpModal &&
+      { false &&
         <SignUpModal
         onDismiss={()=>{ setShowSignUpModal(false); }}
         onSuccessSignUp={ user => {
@@ -134,7 +142,16 @@ function App() {
         }}
         />
       }
+
+      {
+        false &&
+        <LoginModal
+        onDismiss={()=>{}}
+        onLoginSuccess={()=>{}}
+        />
+      }
     </Container>
+    </div>
   ); 
 }
 
