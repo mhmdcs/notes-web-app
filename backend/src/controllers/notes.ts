@@ -2,13 +2,16 @@ import { RequestHandler } from "express";
 import NoteModel from "../models/notes";
 import createHttpError from "http-errors";
 import mongoose from "mongoose";
+import { assertIsDefined } from "../util/assertIsDefined";
 
 // we export this function from our controllers to our routes (i.e. so that our routes can import it and use it)
 // this is a different way of exporting modules than `export default` which exports one module, when we omit the `default` keyword, we can export multiple things by their names
 export const getNotes: RequestHandler = async (request, response, next) => { // we use the async keyword before the arrow function because we want this to be an asynchronous function, and because we can only use the `await` keyword inside functions declared with the `async` keyword
+    const authenticatedUserId = request.session.userId; // now we have a little bit of a type problem because authenticatedUserId could also be of type undefined, there's no way of knowing whether the client will actually send us a cookie with a session with a userId in the header, despite the fact that we've set up an authorization middleware in between that checks for this, but we can never be sure, me or someone else in the team could accidentally remove the auth middleware, and then this userId could be undefined, making ANY of our code undefined is dangerous because our app could misbehave in ways we can never know, so for safety we'll define a util function assertIsDefined() that checks for this in ./util dir.
     try {
-        // throw Error("Boom!");
-        const notes = await NoteModel.find().exec(); // await is syntactic sugar around Promises API, so instead of having to use then() and passing it a callback (arrow function) and resulting in callback hell (ugly nesting), async/await makes us write asynchronous code like normal synchronous code which helps readability! and it's important to not forget the await keyword here because we want to return the value, not a Promise object
+        assertIsDefined(authenticatedUserId);
+
+        const notes = await NoteModel.find({userId: authenticatedUserId}).exec(); // await is syntactic sugar around Promises API, so instead of having to use then() and passing it a callback (arrow function) and resulting in callback hell (ugly nesting), async/await makes us write asynchronous code like normal synchronous code which helps readability! and it's important to not forget the await keyword here because we want to return the value, not a Promise object
         // find().exec() operation is an asynchronous operation, meaning that it takes time to execute, but will return immediately with a Promise (which we can `await` on), ind().exec() operation is an asynchronous long-running operation because we have to go into our database, look up the value, and then return it, and this could take milliseconds, possibily even a whole second! so we must make this call asynchornous, we don't want to force the server to wait and block just because we did this one database operation, actually, we *never* want to make the server block
         response.status(200).json(notes); // we send a 200 OK HTTP response to the client. We DON'T just return the response in the form of text, instead, we return the response in the form of json so that the client can parse it    
     } catch (error) {
@@ -20,7 +23,9 @@ export const getNotes: RequestHandler = async (request, response, next) => { // 
 
 export const getNote: RequestHandler = async (request, response, next) => {
     const noteId = request.params.noteId; // we take the noteId we expect to be passed in the http GET url params
+    const authenticatedUserId = request.session.userId; 
     try {
+        assertIsDefined(authenticatedUserId);
 
         if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
             throw createHttpError(400, "invalid noteId");
@@ -30,6 +35,10 @@ export const getNote: RequestHandler = async (request, response, next) => {
 
         if (!note) { // check if we fail to find the note in the db
             throw createHttpError(404, "Note not found");
+        }
+
+        if (!note.userId.equals(authenticatedUserId)) {
+            throw createHttpError(401, "You do not have authorized access to this note.")
         }
 
         response.status(200).json(note);
@@ -50,6 +59,7 @@ interface CreateNoteBody {
 export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknown> = async (request, response, next) => { // we make this function (arrow function, callback, etc) an async function because it's doing a very slow database insert operation
     const title = request.body.title; // before passing our CreateNoteBody type, title was of type `any`, but after passing CreateNoteBody as a generic type argument, `title` became of type `string`, and when we made title optional in the CreateNoteBody interface, title's type became either "string" or "undefined", undefined is a possible type for title because we can't guarantee that whoever sends these reqeusts actually sent a title
     const text = request.body.text;
+    const authenticatedUserId = request.session.userId; 
     // because title and text are of type `any` by default, meaning that typescript doesn't know their types, it means that their type could be anything, from strings to numbers, so we have to make an CreateNoteBody interface to make them typed to tell typescript what types we should expect
 
     console.log("someone called createNote!")
@@ -57,12 +67,15 @@ export const createNote: RequestHandler<unknown, unknown, CreateNoteBody, unknow
     // for this reason instead of relying on mongoose to check the title and throw an error for us, we need to check it ourselves, this gives us more control over the status code and error message, and the default error message from mongoose will remain a fallback in case we miss up our handling somehow
     // but the first line of defense for errors will be our own endpoint's request handler code here
     try {
+        assertIsDefined(authenticatedUserId);
+
         // we'll do our internal custom error handling in the try block because we're gonna play around with arrows, and whenever we use arrow functions we have to catch their errors so that the server doesn't crash and we lose our job!
         if (!title) { // this checks if title is false i.e. if title is undefined 
             throw createHttpError(400, "Note must have a title"); // if title is undefined, then we throw an HttpError with 400 (bad request), which will then get caught in the catch block below, and then next() will forward it to our error-handler middleware
         }
         // we'll use mongose to create (insert) our note into the database, so that we can send it back to the client, we do this so that we can later update the UI with this new note, and it's also efficient to return the data we created so that the client doesn't have to make two requests!
         const newNote = await NoteModel.create({ // we pass in a javascript object literal (aka json)
+            userId: authenticatedUserId,
             title: title,
             text: text,
         });
@@ -91,8 +104,10 @@ export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBod
     const noteId = request.params.noteId;
     const updatedTitle = request.body.title;
     const updatedText = request.body.text;
+    const authenticatedUserId = request.session.userId; 
 
     try {
+        assertIsDefined(authenticatedUserId);
 
         if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
             throw createHttpError(400, "invalid noteId");
@@ -106,6 +121,10 @@ export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBod
 
         if (!note) { // check if we fail to find the note in the db
             throw createHttpError(404, "Note not found");
+        }
+
+        if (!note.userId.equals(authenticatedUserId)) {
+            throw createHttpError(401, "You do not have authorized access to this note.")
         }
 
         // set the note to have the updated title and text from the request's params
@@ -123,8 +142,11 @@ export const updateNote: RequestHandler<UpdateNoteParams, unknown, UpdateNoteBod
 export const deleteNote: RequestHandler = async (request, response, next) => {
 
     const noteId = request.params.noteId;
+    const authenticatedUserId = request.session.userId; 
 
     try {
+        assertIsDefined(authenticatedUserId);
+
         if (!mongoose.isValidObjectId(noteId)) { // here we check if someone passed us an invalid noteId (e.g. it's length is incorrect or has invalid chars, etc), then we throw 400 bad request 
             throw createHttpError(400, "invalid noteId");
         }
@@ -133,6 +155,10 @@ export const deleteNote: RequestHandler = async (request, response, next) => {
 
         if (!note) { // check if we fail to find the note in the db
             throw createHttpError(404, "Note not found");
+        }
+
+        if (!note.userId.equals(authenticatedUserId)) {
+            throw createHttpError(401, "You do not have authorized access to this note.")
         }
 
         await note.remove();

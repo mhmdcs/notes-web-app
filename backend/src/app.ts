@@ -7,6 +7,7 @@ import createHttpError, { isHttpError } from "http-errors"; // we could create o
 import session from "express-session";
 import env from "./util/validateEnv";
 import MongoStore from "connect-mongo";
+import { requiresAuth } from "./middlewares/auth";
 
 // Default exports can be imported with `import <name> from "<module-name>";` syntax, like `import express from "express";`
 // Modules can also be imported just for their side effects, without importing any specific values or functions by using the `import "<module-name>";` syntax, like `import "dotenv/config";`
@@ -34,8 +35,8 @@ app.use(session({ // express-session is yet another middleware we have to regist
 }));
 
 // it's like a puzzle that we have put together, we have this middleware that catches any requests that go through this endpoint, which then checks the notesRoutes endpoints we have in routes/notes.ts and forwards the api call to the endpoint with the appropriate http verb (get, post, etc), and then our routes internally call the controllers which handle the logic of responses 
-app.use("/api/notes", notesRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/notes", requiresAuth, notesRoutes); // the order of our middlewares (request handlers / controllers) matters, we first want to check if the user is authenticated BEFORE we call our normal endpoint handlers  
  
 
 // to drive home the concept of middlewares, when we try to access an endpoint that doesn't exist, we get a default error message, but we could return our own error message instead 

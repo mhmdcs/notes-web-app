@@ -3,6 +3,7 @@
 import { InferSchemaType, model, Schema } from "mongoose";
 
 const noteSchema = new Schema({ // we use curly braces because this is where we put configurations for the schema
+    userId: {type: Schema.Types.ObjectId, required: true }, // we set userId as a field because we want each note to be linked to a specific userId so that each user have their own notes collection
     title: { type: String, required: true }, // this is a configuration that defines that each note has to have a title, otherwise mongodb will not accept it
     text: { type: String }, // we won't make text required because we want the note's text to be optional 
 }, {

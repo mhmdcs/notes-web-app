@@ -10,9 +10,6 @@ export const getAuthenticatedUser: RequestHandler = async (request, response, ne
     const authenticatedUserId = request.session.userId; // if there's a user currently logged in, then this will have the id of the user, and if there is no user logged in, this will return undefined and thus we'll know that there is no active login session right now
     // request.session could either return undefined because we didn't receive a cookie with a session that contains a userId, or because the express-session middlewar we set up in app.ts hit/queried the database to check if a session with this userId exists, but the session has either been deleted manually in the database or automatically deleted because it was expired, and thus it doesn't exist in the database and the express-session middleware returns undefined for us 
     try {
-        if (!authenticatedUserId) { // if there is no authenticatedUserId (and thus no active valid session) we could either do nothing, or just return 401 error to be nice :)
-            throw createHttpError(401, "User not authenticated")
-        }
         // if there IS an authenticatedUserId (i.e. there is a session with a user id), we can return the user data
         const user = await UserModel.findById(authenticatedUserId).select("+email").exec(); // we can query the user data using findById() thanks to us storing the userId within the session in our sign up/login endpoints :) also, we don't need to return the password here because the user/frontend doesn't really need this data right now, we'll just return the username and email to show it in the user profile for example to give visual feedback to the user on what account they signed in with
 
