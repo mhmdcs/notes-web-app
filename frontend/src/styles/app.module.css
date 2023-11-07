@@ -1,0 +1,4 @@
+
+.pageContainer {
+    padding: 32px 0; /* we set 32 pixels to the first argument, which are the padding values for top and bottom, and pass 0 for the second argument which are the padding values for start (left) and end (right), we want none because everything is centered anyway*/
+}

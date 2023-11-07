@@ -2,7 +2,7 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 import { User } from "../models/user";
 import NavBarLoggedInView from "./NavBarLoggedInView";
 import NavBarLoggedOutView from "./NavBarLoggedOutView";
-
+import { Link } from "react-router-dom";
 
 interface NavBarProps {
     loggedInUser: User | null,  // why do we set loggedInUser to be of type `User | null` like `loggedInUser: User | null` instead of just declaring it as an optional like `loggedInUser?: User`? because we want to force the caller of this component to pass an explicit value for this property, either they pass a User or null
@@ -21,11 +21,19 @@ interface NavBarProps {
         // sticky means that the navbar will always be visible even if we scroll down
         <Navbar bg="primary" variant="dark" expand="sm" sticky="top">
             <Container>
-                <Navbar.Brand>
+                <Navbar.Brand as={Link} to='/'>
                     Notes Web App
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="main-navbar"/>
-                <Navbar.Collapse id="main-navbar"/>
+                <Navbar.Collapse id="main-navbar">
+                <Nav /* we never use href for internal app navigation because it will always refresh the page and thus it'll cause the this entire NavBar component to re-render */
+                /* we'll use react's "render props" which is a design pattern in react that you can build yourself if you needed, and some packages like react-bootstrap use it, so we'll use it for Nav.Link
+                so now we can keep using the <Nav.Link> component from react-bootstrap, but we can render it as the <Link> component from react-router-dom package
+                using the `as` prop like so: `as={}` and with this we can tell react-bootstrap that it must use the styling and everything from the <Nav.Link> but actually render a different component when this is displayed on the screen */>
+                    <Nav.Link as={Link} to="/privacy">
+                        Privacy
+                    </Nav.Link>
+                </Nav>
                 <Nav className="ms-auto">
                     {   // we do ? : ternary op for an if-else statement
                         loggedInUser 
@@ -33,6 +41,7 @@ interface NavBarProps {
                         : <NavBarLoggedOutView onSignUpClicked={onSignUpClicked} onLoginClicked={onLoginClicked}/>
                     }
                 </Nav>
+                </Navbar.Collapse>
             </Container>
         </Navbar>
     );
