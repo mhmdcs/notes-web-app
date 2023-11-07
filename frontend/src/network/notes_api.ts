@@ -1,3 +1,4 @@
+import { ConflictError, UnauthorizedError } from "../errors/http_errors";
 import { Note } from "../models/notes";
 import { User } from "../models/user";
 
@@ -11,7 +12,16 @@ async function fetchData(input: RequestInfo, init: RequestInit) {
         } else {
             const errorBody = await response.json();
             const errorMessage = errorBody.error; // since in the backend we always return a json object with 400-500 that contains a json key named `error` with the value error string, we call `errorBody.error`
-            throw Error(errorMessage);
+
+            switch (response.status) {
+                case 401:
+                    throw new UnauthorizedError(errorMessage);
+                case 409:
+                    throw new ConflictError(errorMessage);
+                default:
+                    throw Error("Request failed with status: " + response.status + " mesage: " + errorMessage);
+            }
+
         }
 }
 

@@ -1,10 +1,12 @@
-import { Modal, Form, Button } from "react-bootstrap";
+import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { User } from "../models/user";
 import { SignUpCredentials } from "../network/notes_api"
 import * as NotesApi from "../network/notes_api"
 import { useForm } from "react-hook-form";
 import TextInputField from "./form/TextInputField";
 import StylesUtils from "../styles/utils.module.css";
+import { useState } from "react";
+import { ConflictError, UnauthorizedError } from "../errors/http_errors";
 
 interface SignUpModalProps {
     onDismiss: () => void,
@@ -13,6 +15,7 @@ interface SignUpModalProps {
 
 const SignUpModal = ({ onDismiss, onSuccessSignUp }: SignUpModalProps) => {
 
+    const [errorText, setErrorText] = useState<string|null>(null);
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignUpCredentials>(); // we define no default values for this form's data state
 
     async function onSubmit(credentials: SignUpCredentials) {
@@ -20,7 +23,11 @@ const SignUpModal = ({ onDismiss, onSuccessSignUp }: SignUpModalProps) => {
             const user = await NotesApi.signup(credentials);
             onSuccessSignUp(user);
         } catch (error) {
-            alert(error);
+            if (error instanceof ConflictError) {
+                setErrorText(error.message);
+            } else {
+                alert(error);
+            }
             console.log(error);
         }
     }
@@ -34,6 +41,13 @@ const SignUpModal = ({ onDismiss, onSuccessSignUp }: SignUpModalProps) => {
             </Modal.Header>
 
             <Modal.Body>
+                {
+                    errorText &&
+                    <Alert variant="danger">
+                        {errorText}
+                    </Alert>
+                }
+
                 <Form onSubmit={handleSubmit(onSubmit)}>
 
                     <TextInputField
